@@ -1,6 +1,7 @@
 package com.s21.devops.sample.bookingservice.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.rabbitmq.client.MetricsCollector;
 import com.s21.devops.sample.bookingservice.Communication.*;
 import com.s21.devops.sample.bookingservice.Communication.Aux.DayAvailability;
 import com.s21.devops.sample.bookingservice.Communication.Aux.RoomFilling;
@@ -34,6 +35,9 @@ public class BookingServiceImplementation implements BookingService {
     @Autowired
     private QueueProducer queueProducer;
 
+    @Autowired
+		private MetricsCollectorRBMQ metricsCollector;    
+    
     @Override
     public void patchHotelInfo(UUID hotelUid, PatchRoomsInfoReq patchRoomsInfoReq)
             throws JsonProcessingException {
@@ -130,6 +134,7 @@ public class BookingServiceImplementation implements BookingService {
             }
             current = current.plusDays(1);
         }
+				metricsCollector.incrementBookings();
     }
 
     @Transactional

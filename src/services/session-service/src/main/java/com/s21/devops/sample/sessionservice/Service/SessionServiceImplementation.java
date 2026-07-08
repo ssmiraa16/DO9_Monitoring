@@ -17,6 +17,8 @@ import java.util.UUID;
 public class SessionServiceImplementation implements SessionService{
     @Autowired
     private JwtProvider jwtProvider;
+		@Autowired
+		private MetricsCollector metricsCollector;
 
     @Autowired
     private UserService userService;
@@ -30,6 +32,7 @@ public class SessionServiceImplementation implements SessionService{
         String decLoginAndPassword = new String(decbytes);
         String[] loginAndPassword = decLoginAndPassword.split(":", 2);
         User user = userService.findByLoginAndPassword(loginAndPassword[0], loginAndPassword[1]);
+				metricsCollector.incrementAuthRequest();
         return jwtProvider.generateToken(user.getUserUid());
     }
 

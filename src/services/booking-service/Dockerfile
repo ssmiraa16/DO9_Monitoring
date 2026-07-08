@@ -7,12 +7,11 @@ RUN mvn dependency:go-offline
 COPY src/main ./src/main
 RUN mvn package -DskipTests
 
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:8-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar /app/app.jar
 COPY wait-for-it.sh .
 RUN chmod +x wait-for-it.sh
-RUN apk add --no-cache bash
 
 CMD  ["./wait-for-it.sh", "-t", "60", "postgres:5432", "--", \
       "./wait-for-it.sh", "-t", "60", "rabbitmq:5672", "--", \

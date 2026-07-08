@@ -1,12 +1,16 @@
 package com.s21.devops.sample.bookingservice.Statistics;
 
+import com.s21.devops.sample.bookingservice.Service.MetricsCollectorRBMQ;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.MetricsCollector;
 import com.s21.devops.sample.bookingservice.Communication.BookingStatisticsMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Component
 public class QueueProducer {
@@ -15,6 +19,8 @@ public class QueueProducer {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+		@Autowired
+		private MetricsCollectorRBMQ metricsCollector;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -23,5 +29,6 @@ public class QueueProducer {
         rabbitTemplate.setExchange(fanoutExchange);
         rabbitTemplate.convertAndSend(objectMapper.writeValueAsString(bookingStatisticsMessage));
         System.out.println("Message was sent successfully!");
+				metricsCollector.incrementMessagesSent();
     }
 }

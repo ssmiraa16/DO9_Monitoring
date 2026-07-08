@@ -3,6 +3,7 @@ package com.s21.devops.sample.reportservice.Statistics;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s21.devops.sample.reportservice.Communication.BookingStatisticsMessage;
+import com.s21.devops.sample.reportservice.Service.MetricsCollector;
 import com.s21.devops.sample.reportservice.Service.BookingStatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 public class QueueConsumer {
     @Autowired
     private BookingStatsService bookingStatsService;
+		@Autowired
+		private MetricsCollector metricsCollector;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -29,5 +32,6 @@ public class QueueConsumer {
     private void processMessage(String message) throws JsonProcessingException {
         BookingStatisticsMessage bsm = objectMapper.readValue(message, BookingStatisticsMessage.class);
         bookingStatsService.postBookingStatsMessage(bsm);
+				metricsCollector.incrementMessagesProcessed();
     }
 }

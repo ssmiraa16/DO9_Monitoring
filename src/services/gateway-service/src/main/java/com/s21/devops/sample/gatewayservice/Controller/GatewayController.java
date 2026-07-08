@@ -1,6 +1,7 @@
 package com.s21.devops.sample.gatewayservice.Controller;
 
 import com.s21.devops.sample.gatewayservice.Communication.*;
+import com.s21.devops.sample.gatewayservice.Service.MetricsCollector;
 import com.s21.devops.sample.gatewayservice.Communication.BookingInfo;
 import com.s21.devops.sample.gatewayservice.Exception.*;
 import com.s21.devops.sample.gatewayservice.Service.*;
@@ -33,7 +34,8 @@ public class GatewayController {
 
     @Autowired
     private ReportService reportService;
-
+    @Autowired
+		private MetricsCollector metricsCollector;
     /*
     @GetMapping("/users")
     public Iterable<UserInfoRes> getUsers() {
@@ -45,17 +47,20 @@ public class GatewayController {
     public void createUser(@Valid @RequestBody CreateUserReq createUserReq, @RequestHeader("Authorization") String authorization)
             throws UserAlreadyExistsException {
         sessionService.createUser(createUserReq, authorization);
+				metricsCollector.incrementRequestReceived();
     }
 
     @GetMapping("/hotels")
     public HotelInfoRes[] getHotels()
             throws CustomJwtException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         return hotelsService.getAllHotels();
     }
 
     @GetMapping("/hotels/{hotelUid}")
     public HotelInfoRes getHotelInfo(@PathVariable UUID hotelUid)
             throws CustomJwtException, HotelNotFoundException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         return hotelsService.getHotel(hotelUid);
     }
 
@@ -66,6 +71,7 @@ public class GatewayController {
         System.out.println("hotel was booked");
         bookHotelReq.setUserUid(getUserUid(authorization));
         bookingService.bookHotel(bookHotelReq);
+				metricsCollector.incrementRequestReceived();
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -74,29 +80,34 @@ public class GatewayController {
             throws CustomJwtException, CustomRuntimeException, ReservationNotFoundException {
         System.out.println("booking for " + hotelUid.toString() + " was removed");
         bookingService.removeBooking(hotelUid, getUserUid(authorization));
+				metricsCollector.incrementRequestReceived();
     }
 
     @GetMapping("/booking/{hotelUid}")
     public BookingInfo getBookingInfo(@PathVariable UUID hotelUid, @RequestHeader("Authorization") String authorization)
             throws CustomJwtException, CustomRuntimeException, ReservationNotFoundException {
+				metricsCollector.incrementRequestReceived();
         return bookingService.getBookingInfo(hotelUid, getUserUid(authorization));
     }
 
     @GetMapping("/booking")
     public BookingInfo[] getAllBookingInfo(@RequestHeader("Authorization") String authorization)
             throws CustomJwtException, CustomRuntimeException, ReservationNotFoundException {
+				metricsCollector.incrementRequestReceived();
         return bookingService.getAllBookingInfo(getUserUid(authorization));
     }
 
     @GetMapping("/booking/{hotelUid}/rooms")
     public HotelsAavailabilityRes getBookingAvailability(@PathVariable UUID hotelUid, @RequestParam String from, @RequestParam String to)
             throws CustomJwtException, CustomRuntimeException, HotelNotFoundException {
+				metricsCollector.incrementRequestReceived();
         return bookingService.getHotelsAvailaibility(hotelUid, from, to);
     }
 
     @GetMapping("/loyalty")
     public LoyaltyBalanceRes getLoyaltyBalance(@RequestHeader("Authorization") String authorization)
             throws CustomJwtException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         try {
             return loyaltyService.getLoyaltyBalance(getUserUid(authorization));
         } catch (LoyaltyNotFoundException ex){
@@ -107,6 +118,7 @@ public class GatewayController {
     @PostMapping("/hotels")
     public ResponseEntity<Void> addHotel(@Valid @RequestBody CreateHotelReq createHotelReq)
             throws CustomRuntimeException, CustomJwtException, HotelAlreadyExistsException {
+				metricsCollector.incrementRequestReceived();
         System.out.println("hotel was created");
         UUID hotelUid = hotelsService.createHotel(createHotelReq);
         return ResponseEntity.created(ServletUriComponentsBuilder
@@ -120,6 +132,7 @@ public class GatewayController {
     @PatchMapping("/hotels/{hotelUid}/rooms")
     public void patchRoomsInfo(@PathVariable UUID hotelUid, @Valid @RequestBody PatchRoomsInfoReq patchRoomsInfoReq)
             throws CustomJwtException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         System.out.println("rooms info for hotel " + hotelUid.toString() + "was changed");
         bookingService.patchRoomInfo(hotelUid, patchRoomsInfoReq);
     }
@@ -127,6 +140,7 @@ public class GatewayController {
     @GetMapping("/reports/booking")
     public BookingStatisticsMessage[] getBookingStats(@RequestParam("from") String from, @RequestParam("to") String to)
             throws CustomJwtException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         System.out.println("get booking statistics was called");
         return reportService.getUserStatistics(from, to);
     }
@@ -134,6 +148,7 @@ public class GatewayController {
     @GetMapping("/reports/hotels-filling")
     public HotelFillingStatistics[] getFillingStats(@RequestParam("from") String from, @RequestParam("to") String to)
             throws CustomJwtException, CustomRuntimeException {
+				metricsCollector.incrementRequestReceived();
         System.out.println("get hotels filling statistics was called");
         return reportService.getHotelStatistics(from, to);
     }

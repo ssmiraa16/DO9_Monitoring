@@ -1,0 +1,25 @@
+global:
+  resolve_timeout: 2m
+
+route:
+  group_by: ['alerts']
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1m
+  receiver: 'telegram_and_email'
+
+receivers:
+  - name: 'telegram_and_email'
+    email_configs:
+      - to: 'mail@mail.me'
+        from: 'mail@mail.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'mail@mail.com'
+        auth_password: 'pass' 
+    telegram_configs:
+      - api_url: 'https://api.telegram.org'
+        bot_token: 'token'
+        chat_id: id 
+        send_resolved: true
+        parse_mode: ''
+        message: "⚠️ Alert Manager ⚠️\n--\n🔺 Alertname: {{ .GroupLabels.alertname}}\n🔺 Severity: {{ .CommonLabels.severity }}\n📌 {{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}"
