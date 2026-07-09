@@ -24,7 +24,7 @@
       "title": "Количество нод",
       "type": "stat",
       "targets": [
-        {"expr": "count(count by (nodename) (node_uname_info))", "refId": "A"}
+        {"expr": "count(up{job=\"node_exporter\"} == 1)", "refId": "A"}
       ]
     },
     {
@@ -43,7 +43,7 @@
       "title": "Количество контейнеров",
       "type": "stat",
       "targets": [
-        {"expr": "count(container_last_seen{name=~\".+\"})", "refId": "A"}
+        {"expr": "count(container_last_seen)", "refId": "A"}
       ]
     },
     {
@@ -94,7 +94,7 @@
       "title": "Использование CPU по сервисам",
       "type": "timeseries",
       "targets": [
-        {"expr": "rate(container_cpu_usage_seconds_total{name=~\".+\"}[5m]) * 100", "legendFormat": "{{name}}", "refId": "A"}
+        {"expr": "rate(container_cpu_usage_seconds_total[5m]) * 100", "legendFormat": "{{name}}", "refId": "A"}
       ]
     },
     {
@@ -176,7 +176,7 @@
         }
       },
       "targets": [
-        {"expr": "probe_success{instance=\"http://www.google.com\"}"}
+        {"expr": "probe_success{instance=\"google.com\"}"}
       ]
     },
     {
@@ -187,7 +187,7 @@
       "title": "Отправленные сообщения в RabbitMQ",
       "type": "stat",
       "targets": [
-        {"expr": "app_rabbitmq_messages_sent_total", "refId": "A"}
+        {"expr": "sum(rate(rabbitmq_published_total[180m]))", "refId": "A"}
       ]
     },
     {
@@ -198,7 +198,7 @@
       "title": "Обработанные сообщения в RabbitMQ",
       "type": "stat",
       "targets": [
-        {"expr": "app_rabbitmq_messages_processed_total", "refId": "A"}
+        {"expr": "sum(rate(rabbitmq_messages_processed_total[120m]))", "refId": "A"}
       ]
     },
     {
@@ -209,7 +209,7 @@
       "title": "Количество бронирований",
       "type": "stat",
       "targets": [
-        {"expr": "app_bookings_total", "refId": "A"}
+        {"expr": "sum(rate(bookings_total[120m]))", "refId": "A"}
       ]
     },
     {
@@ -220,7 +220,7 @@
       "title": "Запросы на Gateway",
       "type": "timeseries",
       "targets": [
-        {"expr": "rate(app_gateway_requests_total[5m])", "legendFormat": "gateway requests/s", "refId": "A"}
+        {"expr": "sum(rate(http_server_requests_seconds_count{job=\"services\", instance=~\"gateway.*\"}[5m]))", "legendFormat": "gateway requests/s", "refId": "A"}
       ]
     },
     {
@@ -231,7 +231,7 @@
       "title": "Запросы на авторизацию",
       "type": "timeseries",
       "targets": [
-        {"expr": "rate(app_auth_requests_total[5m])", "legendFormat": "auth requests/s", "refId": "A"}
+        {"expr": "rate(auth_requests_received_total[120m])", "legendFormat": "auth requests/s", "refId": "A"}
       ]
     },
     {
