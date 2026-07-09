@@ -14,24 +14,31 @@ services:
       - overlay
       - app_app-network
 
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - GF_SECURITY_ADMIN_USER=grafana
-  #     - GF_SECURITY_ADMIN_PASSWORD=grafana  
-  #     - GF_USERS_ALLOW_SIGN_UP=false 
-  #     - TZ=${SYSTEM_TIMEZONE:-Europe/Moscow}
-  #   networks:
-  #     - overlay
-  #   volumes:
-  #     - grafana-storage:/var/lib/grafana
-  #   deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints:
-  #         - node.role == manager
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=grafana
+      - GF_SECURITY_ADMIN_PASSWORD=grafana  
+      - GF_USERS_ALLOW_SIGN_UP=false 
+      - TZ=${SYSTEM_TIMEZONE:-Europe/Moscow}
+    configs:
+      - source: grafana_datasources
+        target: /etc/grafana/provisioning/datasources/datasources.yml 
+      - source: grafana_dashboards_config
+        target: /etc/grafana/provisioning/dashboards/dashboards.yml   
+      - source: grafana_dashboard_json
+        target: /etc/grafana/provisioning/dashboards/monitoring-dashboard.json
+    networks:
+      - overlay
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
 
   loki:
     image: grafana/loki:latest
@@ -121,3 +128,11 @@ networks:
 
 volumes:
   grafana-storage:
+
+configs:
+  grafana_datasources:
+    file: ./datasources.yml
+  grafana_dashboards_config:
+    file: ./dashboards.yml
+  grafana_dashboard_json:
+    file: ./monitoring-dashboard.json
